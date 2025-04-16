@@ -22,7 +22,7 @@ feature_names = [
     "IMT (mm)",
     "TyG index",
     "Carotid plaque burden",
-    "Plaque thickness (mm)"
+    "Maximum plaque thickness (mm)"  # Updated here
 ]
 
 # ===== Input form =====
@@ -50,10 +50,10 @@ with st.form("input_form"):
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
             )
 
-        elif col == "Plaque thickness (mm)":
+        elif col == "Maximum plaque thickness (mm)":  # Changed here
             min_val = 0.0
             max_val = 7.0
-            default_val = float(X_test["Max plaque thickness"].median())  # Update to correct column name
+            default_val = float(X_test["Maximum plaque thickness (mm)"].median())  # Updated to match column name
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -98,13 +98,13 @@ if submitted:
         "IMT (mm)": input_data["IMT (mm)"].iloc[0],
         "TyG index": input_data["TyG index"].iloc[0],
         "Carotid plaque burden": input_data["Carotid plaque burden"].iloc[0],
-        "Max plaque thickness": input_data["Plaque thickness (mm)"].iloc[0]  # Adjusted to match feature names
+        "Maximum plaque thickness (mm)": input_data["Maximum plaque thickness (mm)"].iloc[0]  # Adjusted to match feature names
     }])
 
     predicted_proba = model.predict_proba(model_input)[0]
     probability = predicted_proba[1] * 100
 
-    # ==== 整合展示预测结果和 SHAP 可视化 ====
+    # ==== 整合展示预测结果和 SHAP 可视化 ==== 
     st.subheader("Prediction Result & Explanation")
     st.markdown(f"**Estimated probability:** {probability:.1f}%")
 
