@@ -6,30 +6,30 @@ import shap
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
 
-# Set page title
+# 设置页面标题
 st.title("Prediction of Cardiovascular Risk in New–onset T2D")
 st.caption("Based on TyG Index and Carotid Ultrasound Features")
 
-# ===== Load model and data =====
-model = joblib.load('LGB.pkl')  # Trained LightGBM model
-X_test = pd.read_csv('x_test.csv')  # Original test set for SHAP/LIME context
+# ===== 加载模型和数据 =====
+model = joblib.load('LGB.pkl')  # 已训练的 LightGBM 模型
+X_test = pd.read_csv('x_test.csv')  # 用于 SHAP/LIME 解释的数据集
 
-# ===== Feature list (Displayed names) =====
+# ===== 特征名称（显示名称） =====
 feature_names = [
     "Age (years)",
     "Hypertension",
-    "TyG index",  # Moved up here
-    "IMT (mm)",  # Moved down here
-    "Maximum plaque thickness (mm)",  # Updated here
-    "Carotid plaque burden"  # Moved to the last position
+    "TyG index",  # 将其放在这里
+    "IMT (mm)",  # 将其放在这里
+    "Maximum plaque thickness (mm)",  # 更新这里
+    "Carotid plaque burden"  # 放在最后
 ]
 
-# ===== Input form =====
+# ===== 输入表单 =====
 with st.form("input_form"):
     st.subheader("Please enter the following clinical and ultrasound features:")
     inputs = []
 
-    # Ensure features are entered in the correct order
+    # 确保按正确的顺序输入特征
     for col in feature_names:
         if col == "Hypertension":
             inputs.append(st.selectbox(col, options=[0, 1], index=0))
@@ -50,17 +50,17 @@ with st.form("input_form"):
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
 
-        elif col == "IMT (mm)":  # Handling IMT (mm)
-            min_val = 0.5  # Adjust this min value based on your dataset's typical range
-            max_val = 1.5  # Adjust this max value as per your dataset
+        elif col == "IMT (mm)":  # 处理 IMT (mm)
+            min_val = 0.0  # 设置最小值为 0.00
+            max_val = 1.5
             default_val = float(X_test["IMT (mm)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
 
-        elif col == "TyG index":  # Handling TyG index
-            min_val = 1.0  # Adjust the minimum value based on dataset
-            max_val = 15.0  # Adjust this max value as per your dataset
+        elif col == "TyG index":  # 处理 TyG index
+            min_val = 0.0  # 设置最小值为 0.00
+            max_val = 15.0
             default_val = float(X_test["TyG index"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.01, format="%.2f")
@@ -84,14 +84,14 @@ with st.form("input_form"):
 
     submitted = st.form_submit_button("Submit Prediction")
 
-# ===== Prediction and interpretation =====
+# ===== 预测与解释 =====
 if submitted:
     input_data = pd.DataFrame([inputs], columns=feature_names)
-    input_data = input_data.round(2)  # Round to two decimal places for display
+    input_data = input_data.round(2)  # 将输入四舍五入到两位小数以供显示
     st.subheader("Model Input Features")
     st.dataframe(input_data)
 
-    # Prepare model input with original column names (adjusted for new feature names)
+    # 准备模型输入（使用原始列名，调整为新的特征名称）
     model_input = pd.DataFrame([{
         "Age (years)": input_data["Age (years)"].iloc[0],
         "Hypertension": input_data["Hypertension"].iloc[0],
@@ -104,7 +104,7 @@ if submitted:
     predicted_proba = model.predict_proba(model_input)[0]
     probability = predicted_proba[1] * 100
 
-    # ===== Risk Stratification by Percentile ===== 
+    # ===== 风险分层（按百分位） ===== 
     y_probs = model.predict_proba(X_test)[:, 1]
     low_threshold = np.percentile(y_probs, 50.0)  # 前50%
     mid_threshold = np.percentile(y_probs, 88.07)  # 前50% + 38.07% = 88.07%
@@ -119,7 +119,7 @@ if submitted:
         risk_level = "🔴 **You are at a high risk of cardiovascular disease.**"
         suggestion = "🚨 It is recommended to consult a physician promptly and take proactive medical measures."
 
-    # ==== Display Result ==== 
+    # ==== 显示结果 ==== 
     st.subheader("Prediction Result & Explanation")
     st.markdown(f"**Estimated probability:** {probability:.1f}%")
     st.info(risk_level)
