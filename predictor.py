@@ -21,8 +21,8 @@ feature_names = [
     "Hypertension",
     "IMT (mm)",
     "TyG index",
-    "Carotid plaque burden",
-    "Maximum plaque thickness (mm)"  # Updated here
+    "Maximum plaque thickness (mm)",  # Updated here
+    "Carotid plaque burden"  # Moved to the last position
 ]
 
 # ===== Input form =====
@@ -39,14 +39,6 @@ with st.form("input_form"):
             min_val = int(X_test["Age (years)"].min())
             max_val = 100
             default_val = int(X_test["Age (years)"].median())
-            inputs.append(
-                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
-            )
-
-        elif col == "Carotid plaque burden":
-            min_val = int(X_test[col].min())
-            max_val = 15
-            default_val = int(X_test[col].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
             )
@@ -75,6 +67,14 @@ with st.form("input_form"):
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.01, format="%.2f")
             )
 
+        elif col == "Carotid plaque burden":
+            min_val = int(X_test[col].min())
+            max_val = 15
+            default_val = int(X_test[col].median())
+            inputs.append(
+                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
+            )
+
         else:
             min_val = float(X_test[col].min())
             max_val = float(X_test[col].max())
@@ -98,8 +98,8 @@ if submitted:
         "Hypertension": input_data["Hypertension"].iloc[0],
         "IMT (mm)": input_data["IMT (mm)"].iloc[0],
         "TyG index": input_data["TyG index"].iloc[0],
-        "Carotid plaque burden": input_data["Carotid plaque burden"].iloc[0],
-        "Maximum plaque thickness (mm)": input_data["Maximum plaque thickness (mm)"].iloc[0]  # Adjusted to match feature names
+        "Maximum plaque thickness (mm)": input_data["Maximum plaque thickness (mm)"].iloc[0],  # Adjusted to match feature names
+        "Carotid plaque burden": input_data["Carotid plaque burden"].iloc[0]  # Adjusted to match feature names
     }])
 
     predicted_proba = model.predict_proba(model_input)[0]
@@ -131,4 +131,5 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
+
 
