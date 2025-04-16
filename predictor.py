@@ -50,17 +50,17 @@ with st.form("input_form"):
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
 
-        elif col == "IMT (mm)":
+        elif col == "IMT (mm)":  # Handling IMT (mm)
             min_val = 0.0
-            max_val = 1.5
+            max_val = 1.5  # Adjust this max value as per your dataset
             default_val = float(X_test["IMT (mm)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
 
-        elif col == "TyG index":
+        elif col == "TyG index":  # Handling TyG index
             min_val = 0.0
-            max_val = 15.0
+            max_val = 15.0  # Adjust this max value as per your dataset
             default_val = float(X_test["TyG index"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.01, format="%.2f")
