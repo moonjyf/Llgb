@@ -54,7 +54,7 @@ with st.form("input_form"):
         elif col == "IMT (mm)":
             min_val = 0.0
             max_val = 1.5
-            default_val = float(X_test["IMT (mm)"].median())
+            default_val = 0.00  # Set initial value to 0.00
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -62,7 +62,7 @@ with st.form("input_form"):
         elif col == "TyG index":
             min_val = 0.0
             max_val = 15.0
-            default_val = float(X_test["TyG index"].median())
+            default_val = 0.00  # Set initial value to 0.00
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.01, format="%.2f")
             )
@@ -131,6 +131,5 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
-
 
 
