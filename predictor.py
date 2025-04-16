@@ -51,7 +51,7 @@ with st.form("input_form"):
             )
 
         elif col == "IMT (mm)":  # Handling IMT (mm)
-            min_val = 0.0
+            min_val = 0.5  # Adjust this min value based on your dataset's typical range
             max_val = 1.5  # Adjust this max value as per your dataset
             default_val = float(X_test["IMT (mm)"].median())
             inputs.append(
@@ -59,7 +59,7 @@ with st.form("input_form"):
             )
 
         elif col == "TyG index":  # Handling TyG index
-            min_val = 0.0
+            min_val = 1.0  # Adjust the minimum value based on dataset
             max_val = 15.0  # Adjust this max value as per your dataset
             default_val = float(X_test["TyG index"].median())
             inputs.append(
@@ -147,3 +147,4 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
+
