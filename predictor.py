@@ -53,8 +53,7 @@ with st.form("input_form"):
         elif col == "IMT (mm)":  # 处理 IMT (mm)
             min_val = 0.0  # 设置最小值为 0.00
             max_val = 1.5
-            # Ensure no missing values in the column
-            default_val_IMT = X_test["IMT (mm)"].dropna().median() if not X_test["IMT (mm)"].isnull().all() else 0.0
+            default_val_IMT = 0.00  # 默认显示为0.00
             inputs.append(
                 st.number_input(col, value=default_val_IMT, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -62,8 +61,7 @@ with st.form("input_form"):
         elif col == "TyG index":  # 处理 TyG index
             min_val = 0.0  # 设置最小值为 0.00
             max_val = 15.0
-            # Ensure no missing values in the column
-            default_val_tyG = X_test["TyG index"].dropna().median() if not X_test["TyG index"].isnull().all() else 0.0
+            default_val_tyG = 0.00  # 默认显示为0.00
             inputs.append(
                 st.number_input(col, value=default_val_tyG, min_value=min_val, max_value=max_val, step=0.01, format="%.2f")
             )
@@ -149,5 +147,6 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
+
 
 
