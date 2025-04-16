@@ -30,14 +30,15 @@ with st.form("input_form"):
     st.subheader("Please enter the following clinical and ultrasound features:")
     inputs = []
 
+    # 确保特征按预期顺序填写
     for col in feature_names:
         if col == "Hypertension":
             inputs.append(st.selectbox(col, options=[0, 1], index=0))
 
         elif col == "Age (years)":
-            min_val = int(X_test["Age (years)"].min())  # Change "Age" to "Age (years)" here
+            min_val = int(X_test["Age (years)"].min())
             max_val = 100
-            default_val = int(X_test["Age (years)"].median())  # Change "Age" to "Age (years)" here
+            default_val = int(X_test["Age (years)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
             )
@@ -50,10 +51,10 @@ with st.form("input_form"):
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=1)
             )
 
-        elif col == "Maximum plaque thickness (mm)":  # Changed here
+        elif col == "Maximum plaque thickness (mm)":
             min_val = 0.0
             max_val = 7.0
-            default_val = float(X_test["Maximum plaque thickness (mm)"].median())  # Updated to match column name
+            default_val = float(X_test["Maximum plaque thickness (mm)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -61,7 +62,7 @@ with st.form("input_form"):
         elif col == "IMT (mm)":
             min_val = 0.0
             max_val = 1.5
-            default_val = float(X_test["IMT (mm)"].median())  # Use consistent column name
+            default_val = float(X_test["IMT (mm)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -69,7 +70,7 @@ with st.form("input_form"):
         elif col == "TyG index":
             min_val = 0.0
             max_val = 15.0
-            default_val = float(X_test["TyG index"].median())  # Consistent column name
+            default_val = float(X_test["TyG index"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.01, format="%.2f")
             )
