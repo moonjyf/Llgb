@@ -5,22 +5,21 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
-from lime.lime_tabular import LimeTabularExplainer
 
 # Set page title
 st.title("Prediction of Cardiovascular Risk in New–onset T2D")
 st.caption("Based on TyG Index and Carotid Ultrasound Features")
 
 # ===== Load model and data =====
-model = joblib.load('LGB.pkl')              # Trained LightGBM model
-X_test = pd.read_csv('x_test.csv')          # Original test set for SHAP/LIME context
+model = joblib.load('LGB.pkl')  # Trained LightGBM model
+X_test = pd.read_csv('x_test.csv')  # Original test set for SHAP/LIME context
 
 # ===== Feature list (Displayed names) =====
 feature_names = [
     "Age (years)",
     "Hypertension",
-    "TyG index",               # Moved up here
-    "IMT (mm)",                # Moved down here
+    "TyG index",  # Moved up here
+    "IMT (mm)",  # Moved down here
     "Maximum plaque thickness (mm)",  # Updated here
     "Carotid plaque burden"  # Moved to the last position
 ]
@@ -30,7 +29,7 @@ with st.form("input_form"):
     st.subheader("Please enter the following clinical and ultrasound features:")
     inputs = []
 
-    # 确保特征按预期顺序填写
+    # Ensure features are entered in the correct order
     for col in feature_names:
         if col == "Hypertension":
             inputs.append(st.selectbox(col, options=[0, 1], index=0))
@@ -54,7 +53,7 @@ with st.form("input_form"):
         elif col == "IMT (mm)":
             min_val = 0.0
             max_val = 1.5
-            default_val = 0.00  # Set initial value to 0.00
+            default_val = float(X_test["IMT (mm)"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
@@ -62,7 +61,7 @@ with st.form("input_form"):
         elif col == "TyG index":
             min_val = 0.0
             max_val = 15.0
-            default_val = 0.00  # Set initial value to 0.00
+            default_val = float(X_test["TyG index"].median())
             inputs.append(
                 st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.01, format="%.2f")
             )
@@ -88,32 +87,49 @@ with st.form("input_form"):
 # ===== Prediction and interpretation =====
 if submitted:
     input_data = pd.DataFrame([inputs], columns=feature_names)
-    input_data = input_data.round(2)  # 保留两位小数用于显示
+    input_data = input_data.round(2)  # Round to two decimal places for display
     st.subheader("Model Input Features")
     st.dataframe(input_data)
 
     # Prepare model input with original column names (adjusted for new feature names)
     model_input = pd.DataFrame([{
-        "Age (years)": input_data["Age (years)"].iloc[0],  # Use "Age (years)" for consistency
+        "Age (years)": input_data["Age (years)"].iloc[0],
         "Hypertension": input_data["Hypertension"].iloc[0],
-        "TyG index": input_data["TyG index"].iloc[0],  # Adjusted to new order
-        "IMT (mm)": input_data["IMT (mm)"].iloc[0],     # Adjusted to new order
-        "Maximum plaque thickness (mm)": input_data["Maximum plaque thickness (mm)"].iloc[0],  # Adjusted to match feature names
-        "Carotid plaque burden": input_data["Carotid plaque burden"].iloc[0]  # Adjusted to match feature names
+        "TyG index": input_data["TyG index"].iloc[0],
+        "IMT (mm)": input_data["IMT (mm)"].iloc[0],
+        "Maximum plaque thickness (mm)": input_data["Maximum plaque thickness (mm)"].iloc[0],
+        "Carotid plaque burden": input_data["Carotid plaque burden"].iloc[0]
     }])
 
     predicted_proba = model.predict_proba(model_input)[0]
     probability = predicted_proba[1] * 100
 
-    # ==== 整合展示预测结果和 SHAP 可视化 ==== 
+    # ===== Risk Stratification by Percentile ===== 
+    y_probs = model.predict_proba(X_test)[:, 1]
+    low_threshold = np.percentile(y_probs, 50.0)  # 前50%
+    mid_threshold = np.percentile(y_probs, 88.07)  # 前50% + 38.07% = 88.07%
+
+    if predicted_proba[1] <= low_threshold:
+        risk_level = "🟢 **You are currently at a low risk of cardiovascular disease.**"
+        suggestion = "✅ Please continue to maintain a healthy lifestyle and attend regular follow-up visits."
+    elif predicted_proba[1] <= mid_threshold:
+        risk_level = "🟡 **You are at a moderate risk of cardiovascular disease.**"
+        suggestion = "⚠️ It is advised to monitor your condition closely and consider preventive interventions."
+    else:
+        risk_level = "🔴 **You are at a high risk of cardiovascular disease.**"
+        suggestion = "🚨 It is recommended to consult a physician promptly and take proactive medical measures."
+
+    # ==== Display Result ==== 
     st.subheader("Prediction Result & Explanation")
     st.markdown(f"**Estimated probability:** {probability:.1f}%")
+    st.info(risk_level)
+    st.markdown(suggestion)
 
     # ===== SHAP Force Plot =====
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(model_input)
 
-    if isinstance(shap_values, list):  # Binary classification
+    if isinstance(shap_values, list):
         shap_value_sample = shap_values[1]
         expected_value = explainer.expected_value[1]
     else:
