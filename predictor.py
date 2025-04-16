@@ -19,8 +19,8 @@ X_test = pd.read_csv('x_test.csv')          # Original test set for SHAP/LIME co
 feature_names = [
     "Age (years)",
     "Hypertension",
-    "IMT (mm)",
-    "TyG index",
+    "TyG index",               # Moved up here
+    "IMT (mm)",                # Moved down here
     "Maximum plaque thickness (mm)",  # Updated here
     "Carotid plaque burden"  # Moved to the last position
 ]
@@ -96,8 +96,8 @@ if submitted:
     model_input = pd.DataFrame([{
         "Age (years)": input_data["Age (years)"].iloc[0],  # Use "Age (years)" for consistency
         "Hypertension": input_data["Hypertension"].iloc[0],
-        "IMT (mm)": input_data["IMT (mm)"].iloc[0],
-        "TyG index": input_data["TyG index"].iloc[0],
+        "TyG index": input_data["TyG index"].iloc[0],  # Adjusted to new order
+        "IMT (mm)": input_data["IMT (mm)"].iloc[0],     # Adjusted to new order
         "Maximum plaque thickness (mm)": input_data["Maximum plaque thickness (mm)"].iloc[0],  # Adjusted to match feature names
         "Carotid plaque burden": input_data["Carotid plaque burden"].iloc[0]  # Adjusted to match feature names
     }])
@@ -131,5 +131,6 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
+
 
 
