@@ -53,17 +53,19 @@ with st.form("input_form"):
         elif col == "IMT (mm)":  # 处理 IMT (mm)
             min_val = 0.0  # 设置最小值为 0.00
             max_val = 1.5
-            default_val = float(X_test["IMT (mm)"].median())
+            # Ensure no missing values in the column
+            default_val_IMT = X_test["IMT (mm)"].dropna().median() if not X_test["IMT (mm)"].isnull().all() else 0.0
             inputs.append(
-                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
+                st.number_input(col, value=default_val_IMT, min_value=min_val, max_value=max_val, step=0.1, format="%.2f")
             )
 
         elif col == "TyG index":  # 处理 TyG index
             min_val = 0.0  # 设置最小值为 0.00
             max_val = 15.0
-            default_val = float(X_test["TyG index"].median())
+            # Ensure no missing values in the column
+            default_val_tyG = X_test["TyG index"].dropna().median() if not X_test["TyG index"].isnull().all() else 0.0
             inputs.append(
-                st.number_input(col, value=default_val, min_value=min_val, max_value=max_val, step=0.01, format="%.2f")
+                st.number_input(col, value=default_val_tyG, min_value=min_val, max_value=max_val, step=0.01, format="%.2f")
             )
 
         elif col == "Carotid plaque burden":
@@ -147,4 +149,5 @@ if submitted:
     plt.savefig("shap_force_plot.png", bbox_inches='tight', dpi=1200)
     plt.close()
     st.image("shap_force_plot.png")
+
 
